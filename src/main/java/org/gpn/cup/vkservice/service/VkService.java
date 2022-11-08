@@ -1,13 +1,13 @@
 package org.gpn.cup.vkservice.service;
 
+import org.gpn.cup.vkservice.domain.vkApi.VkAPIError;
 import org.gpn.cup.vkservice.domain.vkApi.VkAPIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Optional;
 
 @Service
 public class VkService {
@@ -41,11 +41,23 @@ public class VkService {
         return executeURI + "?access_token={accessToken}&v=%s&code={script}".formatted(APIversion);
     }
 
+    private VkAPIResponse timeoutResponse() {
+        VkAPIResponse response = new VkAPIResponse();
+        response.setGeneralError(new VkAPIError(0, "Request timed out"));
+        return response;
+    }
+
     public VkAPIResponse getUserAndGroupMembershipByIDs(String accessToken, String userID, String groupID) {
         String script = composeVkScript(userID, groupID);
         String uri = composeExecuteURI();
 
-        ResponseEntity<VkAPIResponse> response = template.getForEntity(uri, VkAPIResponse.class, accessToken, script);
+        ResponseEntity<VkAPIResponse> response;
+
+        try {
+            response = template.getForEntity(uri, VkAPIResponse.class, accessToken, script);
+        } catch (ResourceAccessException e) { //request timeout
+            return timeoutResponse();
+        }
 
         return response.getBody();
     }

@@ -29,7 +29,8 @@ public class VkAPIResponse {
         return Optional.of(person);
     }
 
-    public Object getErrorObject() {
-        return generalError != null ? generalError :  executeErrors;
+    public VkAPIError getErrorObj() {
+        // execute errors list always contains 1 element
+        return generalError != null ? generalError :  executeErrors.get(0);
     }
 }
