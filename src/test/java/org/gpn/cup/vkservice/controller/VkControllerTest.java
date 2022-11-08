@@ -49,7 +49,6 @@ class VkControllerTest {
         APIRequest request = new APIRequest();
         request.setUserID("188577108");
         request.setGroupID("itmostudents");
-        request.setAccessToken(token);
         return request;
     }
 
@@ -57,12 +56,6 @@ class VkControllerTest {
 
         APIRequest request = composeValidRequest();
 
-        return toJson(request);
-    }
-
-    private String getInvalidRequestBodyBadToken() throws JsonProcessingException {
-        APIRequest request = composeValidRequest();
-        request.setAccessToken("invalidToken");
         return toJson(request);
     }
 
@@ -76,7 +69,8 @@ class VkControllerTest {
         MvcResult result = mockMvc.perform(
                 get("/person")
                 .content(getValidRequestBody())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("vk_service_token", token))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -90,16 +84,26 @@ class VkControllerTest {
     }
 
     @Test
-    public void checkInvalidToken() throws Exception {
+    public void checkInvalidTokenAccess() throws Exception {
         MvcResult result = mockMvc.perform(
                 get("/person")
-                        .content(getInvalidRequestBodyBadToken())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .content(getValidRequestBody())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("vk_service_token", "invalid_token"))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
         VkAPIError response = fromJson(result.getResponse().getContentAsString(), VkAPIError.class);
 
         assertThat(response.getErrorCode()).isEqualTo(INVALID_ACCESS_TOKEN_ERROR_CODE);
+    }
+
+    @Test
+    public void checkNoTokenAccess() throws Exception {
+        mockMvc.perform(
+                get("/person")
+                        .content(getValidRequestBody())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest());
     }
 }

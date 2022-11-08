@@ -1,6 +1,5 @@
 package org.gpn.cup.vkservice.controller;
 
-import lombok.AllArgsConstructor;
 import org.gpn.cup.vkservice.domain.APIRequest;
 import org.gpn.cup.vkservice.domain.Person;
 import org.gpn.cup.vkservice.domain.vkApi.VkAPIResponse;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
@@ -24,10 +24,14 @@ public class VkController {
     }
 
     @GetMapping("/person")
-    public ResponseEntity<?> getPersonAndGroupMembership(@RequestBody APIRequest request) {
+    public ResponseEntity<?> getPersonAndGroupMembership(
+            @RequestHeader("vk_service_token") String serviceToken,
+            @RequestBody APIRequest request) {
+
+        System.out.println(request);
 
         VkAPIResponse response = vkService.getUserAndGroupMembershipByIDs(
-                request.getAccessToken(), request.getUserID(), request.getGroupID());
+                serviceToken, request.getUserID(), request.getGroupID());
 
         Optional<Person> person = response.getBody();
 
