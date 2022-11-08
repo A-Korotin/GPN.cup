@@ -13,10 +13,10 @@ public class VkAPIResponse {
     private Person person;
 
     @JsonProperty("error")
-    private VkApiError generalError;
+    private VkAPIError generalError;
 
     @JsonProperty("execute_errors")
-    private List<VkApiError> executeErrors;
+    private List<VkAPIError> executeErrors;
 
     private boolean validResponse() {
         return generalError == null && executeErrors == null;

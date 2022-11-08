@@ -5,6 +5,7 @@ import org.gpn.cup.vkservice.domain.APIRequest;
 import org.gpn.cup.vkservice.domain.Person;
 import org.gpn.cup.vkservice.domain.vkApi.VkAPIResponse;
 import org.gpn.cup.vkservice.service.VkService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,10 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@AllArgsConstructor
 public class VkController {
 
     private VkService vkService;
+
+    @Autowired
+    public VkController(VkService vkService) {
+        this.vkService = vkService;
+    }
 
     @GetMapping("/person")
     public ResponseEntity<?> getPersonAndGroupMembership(@RequestBody APIRequest request) {

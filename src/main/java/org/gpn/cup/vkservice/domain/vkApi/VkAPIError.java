@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class VkApiError {
+public class VkAPIError {
     @JsonProperty("error_code")
     private Integer errorCode;
 
