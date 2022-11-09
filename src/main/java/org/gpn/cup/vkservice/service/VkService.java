@@ -4,6 +4,8 @@ import org.gpn.cup.vkservice.domain.vkApi.VkAPIError;
 import org.gpn.cup.vkservice.domain.vkApi.VkAPIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
@@ -47,6 +49,7 @@ public class VkService {
         return response;
     }
 
+    @Cacheable(value ="user_and_group", key ="#userID.concat('_').concat(#groupID)")
     public VkAPIResponse getUserAndGroupMembershipByIDs(String accessToken, String userID, String groupID) {
         String script = composeVkScript(userID, groupID);
         String uri = composeExecuteURI();
@@ -54,6 +57,7 @@ public class VkService {
         ResponseEntity<VkAPIResponse> response;
 
         try {
+            System.out.println("Request sent");
             response = template.getForEntity(uri, VkAPIResponse.class, accessToken, script);
         } catch (ResourceAccessException e) { //request timeout
             return timeoutResponse();
